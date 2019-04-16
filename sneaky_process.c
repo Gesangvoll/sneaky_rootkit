@@ -13,8 +13,10 @@ void copy_file(const char *source_file, const char *des_file) {
   if (pid == 0) {
     // Child Process
     char *const args[] = {"cp", (char *const)source_file, (char *const)des_file,
-                          0};
-    int execv_status = execv("bin/cp", args);
+                          NULL};
+    int execv_status = execv("/bin/cp", args);
+    // int execv_status = execl("/bin/cp", "cp", source_file, des_file,
+    // (char*)0);
     if (execv_status == -1) {
       perror("execv copy failed!");
       exit(EXIT_FAILURE);
@@ -57,7 +59,7 @@ void load_module(const char *sneaky_mod) {
     // Parent Process
     int wait_status;
     pid_t child_pid = waitpid(pid, &wait_status, 0);
-    if (wait_status == -1) {
+    if (child_pid == -1) {
       perror("wait_pid failed at load_module!");
       exit(EXIT_FAILURE);
     }
@@ -73,7 +75,7 @@ void unload_module(const char *sneaky_mod) {
   if (pid == 0) {
     // Child Process
     char *args[] = {"rmmod", (char *)sneaky_mod, NULL};
-    int execv_status = execv("/sbin/rmsmod", args);
+    int execv_status = execv("/sbin/rmmod", args);
     if (execv_status == -1) {
       perror("execv failed at unload_module!");
       exit(EXIT_FAILURE);
@@ -82,7 +84,7 @@ void unload_module(const char *sneaky_mod) {
     // Parent Process
     int wait_status;
     pid_t child_pid = waitpid(pid, &wait_status, 0);
-    if (wait_status == -1) {
+    if (child_pid == -1) {
       perror("wait_pid failed at unload_module!");
       exit(EXIT_FAILURE);
     }
